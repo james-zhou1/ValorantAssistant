@@ -27,11 +27,14 @@
             const username = urlParams.get('username');
             const tag = urlParams.get('tag');
 
+            console.log('URL Params:', urlParams); // Debugging log
+            console.log('Username:', username); // Debugging log
+            console.log('Tag:', tag); // Debugging log
+
             if (username && tag) {
                 document.getElementById('analyticsMessage').textContent = `Here are the analytics for ${username} ${tag}`;
             } else {
-                // document.getElementById('analyticsMessage').textContent = 'No analytics available.';
-                document.getElementById('analyticsMessage').textContent = `Here are the analytics for ${username} ${tag}`;
+                document.getElementById('analyticsMessage').textContent = 'No analytics available.';
             }
         });
     </script>

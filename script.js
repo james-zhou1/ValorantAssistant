@@ -6,8 +6,9 @@ document.addEventListener('DOMContentLoaded', () => {
         const tag = document.getElementById('tag').value;
 
         if (username && tag) {
-            // Navigate to a new page with the analytics message
-            window.location.href = `analytics.html?username=${username}&tag=${tag}`;
+            // Update content dynamically instead of navigating
+            document.getElementById('analyticsMessage').textContent = `Here are the analytics for ${username} ${tag}`;
+            document.getElementById('content').style.display = 'block'; // Show the analytics content
         } else {
             alert('Please enter both username and tag.');
         }

@@ -1,0 +1,66 @@
+body {
+    background: linear-gradient(to right, #6a11cb, #2575fc);
+    /* Vibrant blue-purple gradient */
+    color: #ffffff;
+    font-family: 'Arial', sans-serif;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
+    text-align: center;
+}
+
+.container {
+    background: rgba(0, 0, 0, 0.5);
+    /* Semi-transparent background */
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.header {
+    background: linear-gradient(to bottom, #12c2e9, #c471ed, #f64f59);
+    /* Smooth transition from cyan to pink */
+    padding: 10px;
+    border-radius: 8px;
+    margin-bottom: 20px;
+}
+
+h1 {
+    margin: 0;
+    font-size: 2em;
+}
+
+.input-container {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+p {
+    margin: 10px 0;
+}
+
+input[type="text"] {
+    padding: 10px;
+    margin: 10px;
+    border: none;
+    border-radius: 5px;
+    font-size: 1em;
+}
+
+input[type="text"]::placeholder {
+    color: #aaa;
+}
+
+.data-table th {
+    background-color: #8a2387;
+    /* Fallback solid color */
+    background-image: linear-gradient(to right, #f27121, #e94057, #8a2387);
+    /* Warm colors gradient */
+    padding: 10px;
+    border-radius: 5px;
+}

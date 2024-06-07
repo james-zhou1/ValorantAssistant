@@ -12,9 +12,9 @@
                 "triangle_down": "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/13/ranktriangledownicon.png",
                 "triangle_up": "https://media.valorant-api.com/competitivetiers/03621f52-342b-cf4e-4f86-9350a49c6d04/13/ranktriangleupicon.png"
             },
-            "ranking_in_tier": 23,
-            "mmr_change_to_last_game": -17,
-            "elo": 1023,
+            "ranking_in_tier": 0,
+            "mmr_change_to_last_game": -15,
+            "elo": 1000,
             "games_needed_for_rating": 0,
             "old": false
         },
@@ -4924,8 +4924,8 @@
                 "old": false
             },
             "e8a3": {
-                "wins": 30,
-                "number_of_games": 67,
+                "wins": 43,
+                "number_of_games": 96,
                 "final_rank": 13,
                 "final_rank_patched": "Gold 2",
                 "act_rank_wins": [
@@ -5048,6 +5048,58 @@
                     {
                         "patched_tier": "Gold 2",
                         "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 2",
+                        "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 2",
+                        "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 2",
+                        "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 2",
+                        "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 2",
+                        "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 2",
+                        "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 2",
+                        "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 2",
+                        "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 2",
+                        "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 2",
+                        "tier": 13
+                    },
+                    {
+                        "patched_tier": "Gold 1",
+                        "tier": 12
+                    },
+                    {
+                        "patched_tier": "Gold 1",
+                        "tier": 12
+                    },
+                    {
+                        "patched_tier": "Gold 1",
+                        "tier": 12
                     }
                 ],
                 "old": false

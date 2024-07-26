@@ -1,9 +1,10 @@
 import base64
+import os
 from flask import Flask, request, render_template
 from Backend.GEA_database_management import get_map_data_db
 from Backend.GEA_visualizations import plot_activity, plot_data_for_map
 
-app = Flask(__name__)
+app = Flask(__name__, template_folder=os.getcwd())
 
 @app.route('/')
 def index():
@@ -26,7 +27,7 @@ def submit():
     if(toReturn == ''):
         toReturn = 'please check a box'
 
-    return render_template('index.html', images=toReturn, data=data)
+    return render_template('index.html', images=toReturn, data=data) #resetting the stuff is not working properly
         
         
 

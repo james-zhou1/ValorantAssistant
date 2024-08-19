@@ -1,5 +1,5 @@
 from .GEA_classified import CONNECTION_STRING
-from .GEA_constants import allMaps
+from .GEA_constants import allMaps, recent_season
 from .GEA_transformation_functions import compile_leaderboard_data, compile_match_data
 
 from pymongo import MongoClient, UpdateOne
@@ -161,10 +161,10 @@ def add_to_database_db(rank_category:str, allPlayers: list):
    append_fixed_data_GEA_db(rank_category, new_GEA_data)
 
 #call this every season
-def update_leaderboard_data_db():
+def update_leaderboard_data_db(season: str = recent_season):
    
    examined_matches = get_examined_matches_db('leaderboard_data_GEA')
-   new_leaderboard_data = compile_leaderboard_data(examined_matches, 20, 'na')
+   new_leaderboard_data = compile_leaderboard_data(examined_matches, 20, 'na', season = season)
    store_examined_matches_db('leaderboard_data_GEA', examined_matches)
    append_fixed_data_GEA_db('leaderboard_data_GEA', new_leaderboard_data)
 

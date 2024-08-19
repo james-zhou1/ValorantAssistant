@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Data Entry Form</title>
+</head>
+<body>
+    <h1>Select a Map</h1>
+    <form id="mapForm" method="post">
+        <label for="mapName">Map Name:</label>
+        <select id="mapName" name="mapName">
+            <option value="Ascent">Ascent</option>
+            <option value="Split">Split</option>
+            <option value="Fracture">Fracture</option>
+            <option value="Bind">Bind</option>
+            <option value="Breeze">Breeze</option>
+            <option value="Lotus">Lotus</option>
+            <option value="Sunset">Sunset</option>
+            <option value="Pearl">Pearl</option>
+            <option value="Icebox">Icebox</option>
+            <option value="Haven">Haven</option>
+            <option value="Abyss">Abyss</option>
+        </select><br><br>
+
+        <!-- Positioning Guide Button -->
+        <input type="button" value="Positioning Guide" onclick="submitForm('/guide')">
+
+        <!-- Advanced Button -->
+        <input type="button" value="Advanced" onclick="submitForm('/advanced')">
+    </form>
+
+    <div>
+        {{ images|safe }}
+    </div>
+
+    <script>
+        function submitForm(action) {
+            var form = document.getElementById('mapForm');
+            form.action = action;
+            form.submit();
+        }
+    </script>
+</body>
+</html>

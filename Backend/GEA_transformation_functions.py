@@ -376,6 +376,7 @@ def get_all_location_data(puuid: str, all_match_ids: [], examined_matches: set =
             if(examined_matches is not None):
                 examined_matches.add(match_id)
 
+    print(f'Skipped {numSkip} matches. {len(all_match_ids) - numSkip} new matches were added out of {len(all_match_ids)}')
     return to_return_dict
 
 #Accesses API(indirectly)

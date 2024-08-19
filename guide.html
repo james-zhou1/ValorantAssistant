@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Guide Page</title>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <style>
+        body {
+            text-align: center;
+            margin: auto;
+            min-height: 100vh;
+            background-color: #f0f0f0;
+        }
+
+        #result {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            width: 100%;
+            margin-top: 20px;
+            background-color: #e0e0e0;
+            border: 2px dashed #333;
+            padding: 10px;
+        }
+
+        #team, #enemy {
+            flex: 1;
+            max-width: 48%;
+            margin: 0 10px;
+            background-color: #d0d0f0;
+            border: 2px solid #007bff;
+            min-height: 200px;
+        }
+
+        img {
+            width: 100%;
+            height: auto;
+        }
+
+        form {
+            margin-top: 20px;
+            border: 2px dashed #007bff;
+            padding: 10px;
+            background-color: #f0f0f0;
+        }
+
+        #buttonContainer {
+            margin-top: 20px;
+            border: 2px dashed #007bff;
+            padding: 10px;
+            background-color: #d0f0d0;
+        }
+    </style>
+</head>
+<body>
+    <h1>This is the "guide" page</h1>
+    <p>You selected the map: {{ mapName }}</p>
+    <p>{{ plotterObjectInfo }}</p>
+
+    <label for="optionSelect">Are you on Attack or Defense?:</label>
+    <div style="margin-top: 20px;"></div>
+    {{ edit_1 }}
+    <div id="buttonContainer">
+        <button id="attackButton" value="Attack">Attack</button>
+        <button id="defenseButton" value="Defense">Defense</button>
+    </div>
+
+    <div id="result">
+        <div id="team">
+            <!-- Team heatmap and dropdown will be inserted here -->
+        </div>
+        <div id="enemy">
+            <!-- Enemy heatmap and dropdown will be inserted here -->
+        </div>
+    </div>
+
+    <form action="/" method="get">
+        <button type="submit">Return to Home Page</button>
+    </form>
+
+    <script>
+        $(document).ready(function() {
+            $('#attackButton, #defenseButton').click(function() {
+                var selectedOption = $(this).val();
+
+                var attackBuyHtml = '<label for="buyValue">Attackers Buy Value:</label> <select id="attackBuy" name="attackBuy"> <option value="all">All</option><option value="pistol">Pistol</option><option value="eco">Eco</option><option value="midbuy">Mid Buy</option><option value="rifle">Rifle</option><option value="fullbuy">Full Buy</option></select><br><br>';
+                var defenseBuyHtml = '<label for="buyValue">Defenders Buy Value:</label> <select id="defenseBuy" name="defenseBuy"> <option value="all">All</option><option value="pistol">Pistol</option><option value="eco">Eco</option><option value="midbuy">Mid Buy</option><option value="rifle">Rifle</option><option value="fullbuy">Full Buy</option></select><br><br>';
+               
+                if (selectedOption === "Attack") {
+                    $('#team').html(attackBuyHtml).append('<div id="attackImage"></div>');
+                    $('#enemy').html(defenseBuyHtml).append('<div id="defenseImage"></div>');
+                } else if (selectedOption === "Defense") {
+                    $('#team').html(defenseBuyHtml).append('<div id="defenseImage"></div>');
+                    $('#enemy').html(attackBuyHtml).append('<div id="attackImage"></div>');
+                }
+
+                $('#attackBuy').change(function() {
+                    var selectedAttackBuy = $(this).val();
+                    $.ajax({
+                        url: '/generate-attack',
+                        type: 'POST',
+                        data: { option: selectedAttackBuy, side: selectedOption },
+                        success: function(data) {
+                            $('#attackImage').html('<img src="data:image/png;base64,' + data + '" alt="Attack Image">');
+                        }
+                    });
+                });
+
+                $('#defenseBuy').change(function() {
+                    var selectedDefenseBuy = $(this).val();
+                    $.ajax({
+                        url: '/generate-defense',
+                        type: 'POST',
+                        data: { option: selectedDefenseBuy, side: selectedOption },
+                        success: function(data) {
+                            $('#defenseImage').html('<img src="data:image/png;base64,' + data + '" alt="Defense Image">');
+                        }
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+</html>

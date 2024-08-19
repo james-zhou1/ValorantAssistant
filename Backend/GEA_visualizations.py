@@ -1,6 +1,8 @@
 
 import base64
 import io
+
+from .GEA_database_management import get_map_data_db
 from .GEA_constants import *
 
 
@@ -10,6 +12,8 @@ from .GEA_constants import *
 #READ THIS
 #DATA PLOTTING FUNCTIONS(feel free to collapse)
 import numpy as np
+import matplotlib
+matplotlib.use('Agg')  # Use a non-interactive backend
 import matplotlib.pyplot as plt
 from scipy.stats import gaussian_kde
 from scipy.ndimage import gaussian_filter
@@ -17,6 +21,446 @@ import matplotlib.colors as mcolors
 from PIL import Image
 from sklearn.neighbors import KernelDensity
 import math
+
+# a new Map_Plotter object will be created whenever user selects a different map
+class Map_Plotter:
+
+    detail = 400 # Number of bins along each axis
+    def __init__(self, rank_category,map_name):
+        
+        
+        self.map_data = get_map_data_db(rank_category,map_name)
+
+        if self.map_data['num_matches'] == 0:
+            del self
+            raise Exception(f"Failed to create Map_Plotter object. No recorded matches on {map_name}.")
+        
+        self.combined_data_attack = {
+            'kill': [],
+            'death': []
+        }
+        self.combined_data_defense = {
+            'kill': [],
+            'death': []
+        }
+        
+        self.map_name = map_name
+        
+        #GETTING THE IMAGE
+        self.map_img = Image.open(rf"Backend\map_images\{map_name} Map.png")
+        self.map_img = np.array(self.map_img)  # Convert the image to a NumPy array
+        self.img_height, self.img_width, _ = self.map_img.shape  # Get image dimensions
+
+    def __str__(self):
+        return f"Map Name: {self.map_name}, Number of Matches: {self.map_data['num_matches']}"
+
+    #displays a blank image of the map
+    #returns the image too as 64 bit encoded
+    def display_blank(self, side: str):
+        import base64
+
+        fig, ax = plt.subplots(figsize=(8, 8))
+        ax.imshow(self.map_img, extent=(0, self.img_width, 0, self.img_height), aspect='auto', alpha=1)
+        plt.axis('off')  # Do not display axes for better visualization
+        plt.tight_layout()  # Adjust layout to remove extra space around the image
+
+        plt.show()
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        plt.close(fig)
+        buf.seek(0)
+        return base64.b64encode(buf.read()).decode('utf-8')
+    
+    #mutates self.combined_data_attack 
+    #this function is called whenever the user wants to update their buy value range
+    def update_buy_range_attack(self, attack_options: dict = None):
+        self.combined_data_attack = { #clear the combined_data dict, because the user is entering a new buy value range to select from
+            'kill': [],
+            'death': []
+        }
+
+        #ensure that user has specified
+        attack = attack_options is not None 
+        if(not attack):
+            print("please select an attack option ")
+            return
+
+        #check if attack buy range is specified (adds everything to combined data)
+        if(attack):
+
+            #check if the dict parameters has a 'kills' buy range at all
+            if(attack_options['kills'] != None): 
+                
+                #make sure lower <= upper and (lower and upper are within bounds[0,159])
+                if 0 <= attack_options['kills']['lower'] <= 159 and 0 <= attack_options['kills']['upper'] <= 159 and attack_options['kills']['lower'] <= attack_options['kills']['upper']: 
+                    
+                    #loop from [lower->upper] inclusive
+                    for i in range(attack_options['kills']['lower'], attack_options['kills']['upper'] + 1):
+                        #get all the data found at current buy value
+                        curr_kill_value = self.map_data['Attack']['kill_info'][i]
+                        #append all this data to the combined result
+                        self.combined_data_attack['kill'].extend(curr_kill_value)
+
+
+            #check if the dict parameters has a 'deaths' buy range at all
+            if(attack_options['deaths'] != None):
+
+                #make sure lower <= upper and (lower and upper are within bounds[0,159])
+                if 0 <= attack_options['deaths']['lower'] <= 159 and 0 <= attack_options['deaths']['upper'] <= 159 and attack_options['deaths']['lower'] <= attack_options['deaths']['upper']:
+                    
+                    #loop from [lower->upper] inclusive
+                    for i in range(attack_options['deaths']['lower'], attack_options['deaths']['upper'] + 1):
+                        #get all the data found at current buy value
+                        curr_death_value = self.map_data['Attack']['death_info'][i]
+                        #append all this data to the combined result
+                        self.combined_data_attack['death'].extend(curr_death_value)
+
+    #mutates self.combined_data_defense
+    #this function is called whenever the user wants to update their buy value range
+    def update_buy_range_defense(self,defense_options: dict = None):
+        self.combined_data_defense = { #clear the combined_data dict, because the user is entering a new buy value range to select from
+            'kill': [],
+            'death': []
+        }
+
+        #ensure that user has specified
+        defense = defense_options is not None 
+        if(not defense):
+            print("please select a defense option ")
+            return
+
+        #check if defense buy range is specified (adds everything to combined data)
+        if(defense):
+
+            #check if the dict parameters has a 'kills' buy range at all
+            if(defense_options['kills'] != None):
+
+                #make sure lower <= upper and (lower and upper are within bounds[0,159])
+                if 0 <= defense_options['kills']['lower'] <= 159 and 0 <= defense_options['kills']['upper'] <= 159 and defense_options['kills']['lower'] <= defense_options['kills']['upper']:
+                    
+                    #loop from [lower->upper] inclusive
+                    for i in range(defense_options['kills']['lower'], defense_options['kills']['upper'] + 1):
+                        #get all the data found at current buy value
+                        curr_kill_value = self.map_data['Defense']['kill_info'][i]
+                        #append all this data to the combined result
+                        self.combined_data_defense['kill'].extend(curr_kill_value)
+           
+           
+            #check if the dict parameters has a 'deaths' buy range at all
+            if(defense_options['deaths'] != None):
+
+                #make sure lower <= upper and (lower and upper are within bounds[0,159])
+                if 0 <= defense_options['deaths']['lower'] <= 159 and 0 <= defense_options['deaths']['upper'] <= 159 and defense_options['deaths']['lower'] <= defense_options['deaths']['upper']:
+                    
+                    #loop from [lower->upper] inclusive
+                    for i in range(defense_options['deaths']['lower'], defense_options['deaths']['upper'] + 1):
+                        #get all the data found at current buy value
+                        curr_death_value = self.map_data['Defense']['death_info'][i]
+                        #append all this data to the combined result
+                        self.combined_data_defense['death'].extend(curr_death_value)
+
+
+        
+    #generates a bin with kills from the specified side(s)
+    #this is called whenever a new bin needs to be generated(user updates buy value range)
+    #returns raw histogram (no gaussian filter, no logscale, no normalization)
+    def generate_kills_bin(self,attack: bool, defense: bool):
+        
+        # Adjustable parameters
+        grid_size = self.detail  # Number of bins along each axis
+
+        #create an np array of appropriate size
+        if(attack and defense):
+            size = len(self.combined_data_attack['kill']) + len(self.combined_data_defense['kill'])
+        elif(attack):
+            size = len(self.combined_data_attack['kill'])
+        elif(defense):
+            size =  len(self.combined_data_defense['kill'])
+        else:
+            print('choose attack or defense idiot')
+        
+        img_coords = np.empty((size, 2))
+        
+        curr_index = 0
+        if(attack):
+            x_coords = [loc['Location']['x'] for loc in self.combined_data_attack['kill'] ]
+            y_coords = [loc['Location']['y'] for loc in self.combined_data_attack['kill'] ]
+
+            for gx,gy in zip(x_coords,y_coords):
+                x,y = game_to_image_coords(gx, gy, self.img_width, self.img_height, mapCoords[self.map_name]['xMultiplier'], mapCoords[self.map_name]['xScalar'], mapCoords[self.map_name]['yMultiplier'], mapCoords[self.map_name]['yScalar'])
+                
+                
+                img_coords[curr_index][0] = x
+                img_coords[curr_index][1] = y
+                curr_index+=1
+
+            # # Convert game coordinates to image coordinates
+            # new_coords = np.array([game_to_image_coords(gx, gy, self.img_width, self.img_height,
+            #                                             mapCoords[self.map_name]['xMultiplier'],
+            #                                             mapCoords[self.map_name]['xScalar'],
+            #                                             mapCoords[self.map_name]['yMultiplier'],
+            #                                             mapCoords[self.map_name]['yScalar'])
+            #                     for gx, gy in zip(x_coords, y_coords)])
+            # img_coords = np.vstack((img_coords, new_coords))
+
+        if(defense):
+            x_coords = [loc['Location']['x'] for loc in self.combined_data_defense['kill'] ]
+            y_coords = [loc['Location']['y'] for loc in self.combined_data_defense['kill'] ]
+
+            for gx,gy in zip(x_coords,y_coords):
+                x,y = game_to_image_coords(gx, gy, self.img_width, self.img_height, mapCoords[self.map_name]['xMultiplier'], mapCoords[self.map_name]['xScalar'], mapCoords[self.map_name]['yMultiplier'], mapCoords[self.map_name]['yScalar'])
+                
+                
+                img_coords[curr_index][0] = x
+                img_coords[curr_index][1] = y
+                curr_index+=1
+
+
+            # # Convert game coordinates to image coordinates
+            # new_coords = np.array([game_to_image_coords(gx, gy, self.img_width, self.img_height,
+            #                                         mapCoords[self.map_name]['xMultiplier'],
+            #                                         mapCoords[self.map_name]['xScalar'],
+            #                                         mapCoords[self.map_name]['yMultiplier'],
+            #                                         mapCoords[self.map_name]['yScalar'])
+            #                    for gx, gy in zip(x_coords, y_coords)])
+            # img_coords = np.vstack((img_coords, new_coords))
+
+
+        # Binning (Histogram Method)
+        x_bins = np.linspace(0, self.img_width, grid_size)
+        y_bins = np.linspace(0, self.img_height, grid_size)
+        heatmap_hist, _, _ = np.histogram2d(img_coords[:, 0], img_coords[:, 1], bins=(x_bins, y_bins))
+        
+        
+                
+        return heatmap_hist
+
+    #generates a bin with deaths from the specified side(s)
+    #this is called whenever a new bin needs to be generated(user updates buy value range)
+    #returns raw histogram (no gaussian filter, no logscale, no normalization)
+    def generate_deaths_bin(self,attack: bool, defense: bool):
+        # Adjustable parameters
+        grid_size = self.detail  # Number of bins along each axis
+
+
+        #create an np array of appropriate size
+        if(attack and defense):
+            size = len(self.combined_data_attack['death']) + len(self.combined_data_defense['death'])
+        elif(attack):
+            size = len(self.combined_data_attack['death'])
+        elif(defense):
+            size =  len(self.combined_data_defense['death'])
+        else:
+            print('choose attack or defense idiot')
+        
+        img_coords = np.empty((size, 2))        
+
+
+        curr_index = 0
+        if(attack):
+            x_coords = [loc['Location']['x'] for loc in self.combined_data_attack['death'] ]
+            y_coords = [loc['Location']['y'] for loc in self.combined_data_attack['death'] ]
+
+            # Convert game coordinates to image coordinates
+            for gx,gy in zip(x_coords,y_coords):
+                x,y = game_to_image_coords(gx, gy, self.img_width, self.img_height, mapCoords[self.map_name]['xMultiplier'], mapCoords[self.map_name]['xScalar'], mapCoords[self.map_name]['yMultiplier'], mapCoords[self.map_name]['yScalar'])
+                img_coords[curr_index][0] = x
+                img_coords[curr_index][1] = y
+                curr_index+=1
+
+        if(defense):
+            x_coords = [loc['Location']['x'] for loc in self.combined_data_defense['death'] ]
+            y_coords = [loc['Location']['y'] for loc in self.combined_data_defense['death'] ]
+
+            # Convert game coordinates to image coordinates
+            for gx,gy in zip(x_coords,y_coords):
+                x,y = game_to_image_coords(gx, gy, self.img_width, self.img_height, mapCoords[self.map_name]['xMultiplier'], mapCoords[self.map_name]['xScalar'], mapCoords[self.map_name]['yMultiplier'], mapCoords[self.map_name]['yScalar'])
+                img_coords[curr_index][0] = x
+                img_coords[curr_index][1] = y
+                curr_index+=1
+
+        # Binning (Histogram Method)
+        x_bins = np.linspace(0, self.img_width, grid_size)
+        y_bins = np.linspace(0, self.img_height, grid_size)
+        heatmap_hist, _, _ = np.histogram2d(img_coords[:, 0], img_coords[:, 1], bins=(x_bins, y_bins))
+        
+        return heatmap_hist
+    
+    #returns plot as an 64bit encoded image 
+    #given a histogram that has already been created.
+    #please specify the attack,defense,kill,death booleans so that the title is properly displayed
+    def create_plot(self, histogram, attack: bool, defense: bool, kill:bool, death:bool, map_only: bool = False, normalize: bool = False, log_scale: bool = False, filter_sigma: int = 3):
+        #clear any open 'figures'
+        plt.clf()
+
+
+        # Adjustable parameters
+        cmap_choice = 'viridis'  # Colormap for the heatmap
+        interpolation_method = 'nearest'  # Interpolation method ('none', 'nearest', 'bilinear', etc.)
+        apply_gaussian_filter = True  # Whether to apply Gaussian smoothing
+        heatmap_opacity = 0.6
+
+        # Apply normalization if selected
+        if normalize:
+            histogram = histogram / histogram.max()
+
+        # Apply logarithmic scale if selected
+        if log_scale:
+            histogram = np.log1p(histogram)  # log1p is used to avoid log(0) issues
+
+        # Apply Gaussian filtering if selected
+        if apply_gaussian_filter:
+            histogram = gaussian_filter(histogram, sigma=filter_sigma)
+        
+        
+        # Create a plot
+        fig, ax = plt.subplots(figsize=(8, 8))
+
+        print('starting...')
+        # Display the map layout image with adjustable aspect ratio
+        ax.imshow(self.map_img, extent=(0, self.img_width, 0, self.img_height), aspect='auto', alpha=1)
+        
+        print('added background image')
+        # Display the heatmap
+        heatmap = ax.imshow(histogram.T, extent=[0, self.img_width, 0, self.img_height], origin='lower',
+                cmap=cmap_choice, interpolation=interpolation_method, aspect = 'equal', alpha = heatmap_opacity)
+        # Plot the points directly on the image
+        # if(scatterplot):
+        #     ax.scatter(img_coords[:, 0], img_coords[:, 1], color='green', s=25, alpha=0.3)  # Adjust color, size, and alpha as needed
+
+        print('generated heatmap')
+
+
+        #set title
+        title = ''
+        if kill and death:
+            title += f'Kill and Death Locations '
+        elif kill:
+            title += f'Kill Locations '
+        elif death:
+            title += f'Death Locations '
+        else:
+            del self
+            raise Exception('lol stupid')
+
+        title += f'on {self.map_name} '
+
+        if attack and defense:
+            title += f' \n On Attack and Defense'
+        elif attack:
+            title += f' \n On Attack'
+        elif defense:
+            title += f' \n On Defense'
+        else:
+            del self
+            raise Exception('lol stupid')
+
+        if map_only:
+            plt.axis('off')  # Do not display axes for better visualization
+            plt.tight_layout()  # Adjust layout to remove extra space around the image
+        else:
+            # Add a colorbar to serve as a key for the heatmap colors
+            cbar = plt.colorbar(heatmap, ax=ax)
+            cbar.set_label('Density')
+        plt.title(title)
+
+        print('title set, preparing to encode and return')
+
+        # Show the plot
+        # plt.show()
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        plt.close(fig)
+        buf.seek(0)
+
+        print('about to return')
+        return base64.b64encode(buf.read()).decode('utf-8')
+       
+    def create_positioning_guide(self, kill_hist, death_hist, attack: bool, defense: bool, map_only: bool = False, log_scale: bool = False, filter_sigma: int = 3 ):
+        #clear any open 'figures'
+        plt.clf()
+
+        # Adjustable parameters
+        interpolation_method = 'nearest'  # Interpolation method ('none', 'nearest', 'bilinear', etc.)
+        apply_gaussian_filter = True  # Whether to apply Gaussian smoothing
+        heatmap_opacity = 0.6
+
+        if apply_gaussian_filter:
+            kill_hist = gaussian_filter(kill_hist, sigma=filter_sigma)
+            death_hist = gaussian_filter(death_hist, sigma=filter_sigma)
+
+        # # Apply normalization if selected
+        # if normalize:
+        #     histogram = histogram / histogram.max()
+        diff_hist = ((kill_hist + 1 ) / (death_hist + 1))#*(Z_Kill + Z_Death)*(1000)
+
+        # Apply logarithmic scale if selected
+        if log_scale:
+            diff_hist = np.log1p(diff_hist)  # log1p is used to avoid log(0) issues
+
+        # Apply Gaussian filtering if selected
+        if apply_gaussian_filter:
+            diff_hist = gaussian_filter(diff_hist, sigma=filter_sigma)
+        
+        
+        # Create a plot
+        fig, ax = plt.subplots(figsize=(8, 8))
+
+        # Display the map layout image with adjustable aspect ratio
+        ax.imshow(self.map_img, extent=(0, self.img_width, 0, self.img_height), aspect='auto', alpha=1)
+        
+
+        # Create a custom colormap with a nonlinear transition to white
+        colors = [(0, 'white'), (0.175, 'red'), (0.45,"black"),(0.50,"black"),(0.815, 'green'), (1, 'white')]
+        cmap_choice = mcolors.LinearSegmentedColormap.from_list('custom_bwr', colors)
+        norm = mcolors.TwoSlopeNorm(vmin=diff_hist.min(), vcenter=1, vmax=diff_hist.max())
+
+        # Display the heatmap
+        heatmap = ax.imshow(diff_hist.T, extent=[0, self.img_width, 0, self.img_height], origin='lower',
+                cmap=cmap_choice, interpolation=interpolation_method, aspect = 'equal', alpha = heatmap_opacity, norm = norm)
+        # Plot the points directly on the image
+        # if(scatterplot):
+        #     ax.scatter(img_coords[:, 0], img_coords[:, 1], color='green', s=25, alpha=0.3)  # Adjust color, size, and alpha as needed
+
+
+        
+        
+        #set title
+
+        title = f'Positioning Guide For {self.map_name} '
+
+        if attack and defense:
+            title += f' \n On Attack and Defense'
+        elif attack:
+            title += f' \n On Attack'
+        elif defense:
+            title += f' \n On Defense'
+        else:
+            del self
+            raise Exception('lol stupid')
+
+        if map_only:
+            plt.axis('off')  # Do not display axes for better visualization
+            plt.tight_layout()  # Adjust layout to remove extra space around the image
+        else:
+            # Add a colorbar to serve as a key for the heatmap colors
+            cbar = plt.colorbar(heatmap, ax=ax)
+            cbar.set_label('Density')
+
+        plt.title(title)
+
+        # Show the plot
+        # plt.show()
+        buf = io.BytesIO()
+        plt.savefig(buf, format='png')
+        plt.close(fig)
+        buf.seek(0)
+        return base64.b64encode(buf.read()).decode('utf-8')
+
+            
+
+
+
 
 # Function to convert game coordinates to image coordinates
 #auxiliary function
@@ -27,6 +471,7 @@ def game_to_image_coords(game_x, game_y, img_width, img_height, x_multiplier, x_
     # Scale to image dimensions
     x *= img_width
     y = (1-y) * img_height
+
     return x, y
 
 
@@ -43,8 +488,6 @@ def plot_data_for_map(map_data: dict,map_name:str, attack_options: dict = None, 
     map_img = np.array(map_img)  # Convert the image to a NumPy array
     img_height, img_width, _ = map_img.shape  # Get image dimensions
 
-
-    
 
     selected_map = map_data
 

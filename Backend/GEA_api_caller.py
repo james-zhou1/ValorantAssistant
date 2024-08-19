@@ -16,7 +16,9 @@ def limit_check(response):
 #ALL API REQUESTS SHOULD LOOK LIKE THIS
 #       print("Making request...")
 #       response = <API request statmement>
-#       limit_check(response)
+
+#       if response.status_code == 200:
+#           limit_check(response)
 #============================================================================================================
 
 
@@ -37,11 +39,9 @@ def get_puuid(name: str, tag: str, api_key: str):
 
     print("Making request...")
     response = requests.get(url, headers=headers)
-    limit_check(response)
-
-
-
+    
     if response.status_code == 200:
+        limit_check(response)
         return response.json()
     else:
         print(f"Failed to fetch puuid: {response.status_code}")
@@ -75,10 +75,10 @@ def get_raw(puuid: str,api_key: str,queue: str, startIndex: int, endIndex: int):
 
     print("Making request...")
     response = requests.post(url, headers=headers, json=body)
-    limit_check(response)
+    
 
- 
     if response.status_code == 200:
+        limit_check(response)
         return response.json()
     else:
         print(f"Failed to fetch raw_data: {response.status_code}")
@@ -110,9 +110,9 @@ def get_match_details(matchID: str,api_key: str,):
     
     print("Making request...")
     response = requests.post(url, headers=headers, json=body)
-    limit_check(response)
- 
+    
     if response.status_code == 200:
+        limit_check(response)
         return response.json()
     else:
         print(f"Failed to fetch match_details: {response.status_code}")
@@ -139,10 +139,9 @@ def get_leaderboard_info(api_key:str, region: str, season:str):
 
     print("Making request...")
     response = requests.get(url, headers=headers)
-    limit_check(response)
-
 
     if response.status_code == 200:
+        limit_check(response)
         return response.json()
     else:
         print(f"Failed to fetch leaderboard: {response.status_code}")

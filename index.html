@@ -2,34 +2,58 @@
 <html>
 <head>
     <title>Data Entry Form</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: flex-start;
+            height: 100vh;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 10vh; /* Adjusted to place elements in the upper half of the page */
+        }
+        .positioning-guide-button {
+            font-size: 24px;
+            padding: 10px 20px;
+            margin-bottom: 10px;
+        }
+    </style>
 </head>
 <body>
-    <h1>Select a Map</h1>
-    <form id="mapForm" method="post">
-        <label for="mapName">Map Name:</label>
-        <select id="mapName" name="mapName">
-            <option value="Ascent">Ascent</option>
-            <option value="Split">Split</option>
-            <option value="Fracture">Fracture</option>
-            <option value="Bind">Bind</option>
-            <option value="Breeze">Breeze</option>
-            <option value="Lotus">Lotus</option>
-            <option value="Sunset">Sunset</option>
-            <option value="Pearl">Pearl</option>
-            <option value="Icebox">Icebox</option>
-            <option value="Haven">Haven</option>
-            <option value="Abyss">Abyss</option>
-        </select><br><br>
+    <div style="margin-top: 10vh;"> <!-- Adjusted to place elements in the upper half of the page -->
+        <h1>Select a Map</h1>
+        <form id="mapForm" method="post" style="display: flex; flex-direction: column; align-items: center;">
+            <div style="margin-bottom: 10px;">
+                <label for="mapName">Map Name:</label>
+                <select id="mapName" name="mapName" style="margin-left: 10px;">
+                    <option value="Ascent">Ascent</option>
+                    <option value="Split">Split</option>
+                    <option value="Fracture">Fracture</option>
+                    <option value="Bind">Bind</option>
+                    <option value="Breeze">Breeze</option>
+                    <option value="Lotus">Lotus</option>
+                    <option value="Sunset">Sunset</option>
+                    <option value="Pearl">Pearl</option>
+                    <option value="Icebox">Icebox</option>
+                    <option value="Haven">Haven</option>
+                    <option value="Abyss">Abyss</option>
+                </select>
+            </div>
 
-        <!-- Positioning Guide Button -->
-        <input type="button" value="Positioning Guide" onclick="submitForm('/guide')">
+            <!-- Positioning Guide Button -->
+            <div style="margin-bottom: 10px;">
+                <input type="button" class="positioning-guide-button" value="Positioning Guide" onclick="submitForm('/guide')" style="margin-left: auto; margin-right: auto;">
+            </div>
 
-        <!-- Advanced Button -->
-        <input type="button" value="Advanced" onclick="submitForm('/advanced')">
-    </form>
+            <!-- Advanced Button -->
+            <input type="button" value="Advanced" onclick="submitForm('/advanced')" style="margin-left: auto; margin-right: auto;">
+        </form>
 
-    <div>
-        {{ images|safe }}
+        <div>
+            {{ images|safe }}
+        </div>
     </div>
 
     <script>

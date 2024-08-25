@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Error Page</title>
+    <style>
+        body {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+        }
+        h1, h2 {
+            text-align: center;
+        }
+        form {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+        }
+    </style>
+</head>
+<body>
+    <h1>Sorry, no recorded matches on {{ map_name }}. Probably because it hasn't been on map rotation for awhile.</h1>
+    <h2>If it has been on rotation, either the database hasn't been updated since then, or something terrible has happened. If this is the case, DM @ecneon on discord.</h2>
+
+    <form action="/" method="get">
+        <button type="submit">Return to Home Page</button>
+    </form>
+
+</body>
+</html>

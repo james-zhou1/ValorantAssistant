@@ -52,14 +52,12 @@
     </style>
 </head>
 <body>
-    <h1>This is the "guide" page</h1>
-    <p>You selected the map: {{ mapName }}</p>
-    <p>{{ plotterObjectInfo }}</p>
+    <h1>GEA Positioning Guide</h1>
+    <p style="font-size: larger;">You selected the map: <strong>{{ mapName }}</strong></p>
 
-    <label for="optionSelect">Are you on Attack or Defense?:</label>
-    <div style="margin-top: 20px;"></div>
-    {{ edit_1 }}
     <div id="buttonContainer">
+        <label for="optionSelect">Are you on Attack or Defense?:</label>
+        <br>
         <button id="attackButton" value="Attack">Attack</button>
         <button id="defenseButton" value="Defense">Defense</button>
     </div>
@@ -86,13 +84,14 @@
                 var defenseBuyHtml = '<label for="buyValue">Defenders Buy Value:</label> <select id="defenseBuy" name="defenseBuy"> <option value="all">All</option><option value="pistol">Pistol</option><option value="eco">Eco</option><option value="midbuy">Mid Buy</option><option value="rifle">Rifle</option><option value="fullbuy">Full Buy</option></select><br><br>';
                
                 if (selectedOption === "Attack") {
-                    $('#team').html(attackBuyHtml).append('<div id="attackImage"></div>');
-                    $('#enemy').html(defenseBuyHtml).append('<div id="defenseImage"></div>');
+                    $('#team').html(attackBuyHtml + '<p style="font-size: smaller; margin: 0px 60px;">Position yourself to take gunfights in the green areas. Avoid taking gunfights in the red and more through these areas quickly. Gray areas are neutral, play by your wits.</p>' + '<div id="attackImage"></div>');
+                    $('#enemy').html(defenseBuyHtml + '<p style="font-size: smaller; margin: 0px 60px;">You are likely to see the enemy in the following hotspots. Be cautious and use utility to cover these areas.</p>' + '<div id="defenseImage"></div>');
                 } else if (selectedOption === "Defense") {
-                    $('#team').html(defenseBuyHtml).append('<div id="defenseImage"></div>');
-                    $('#enemy').html(attackBuyHtml).append('<div id="attackImage"></div>');
+                    $('#team').html(defenseBuyHtml + '<p style="font-size: smaller; margin: 0px 60px;">Position yourself to take gunfights in the green areas. Avoid taking gunfights in the red and more through these areas quickly. Gray areas are neutral, play by your wits.</p>' + '<div id="defenseImage"></div>');
+                    $('#enemy').html(attackBuyHtml + '<p style="font-size: smaller; margin: 0px 60px;">You are likely to see the enemy in the following hotspots. Be cautious and use utility to cover these areas.</p>' + '<div id="attackImage"></div>');
                 }
-
+                    
+                
                 $('#attackBuy').change(function() {
                     var selectedAttackBuy = $(this).val();
                     $.ajax({

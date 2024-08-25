@@ -316,11 +316,9 @@ class Map_Plotter:
         # Create a plot
         fig, ax = plt.subplots(figsize=(8, 8))
 
-        print('starting...')
         # Display the map layout image with adjustable aspect ratio
         ax.imshow(self.map_img, extent=(0, self.img_width, 0, self.img_height), aspect='auto', alpha=1)
         
-        print('added background image')
         # Display the heatmap
         heatmap = ax.imshow(histogram.T, extent=[0, self.img_width, 0, self.img_height], origin='lower',
                 cmap=cmap_choice, interpolation=interpolation_method, aspect = 'equal', alpha = heatmap_opacity)
@@ -328,7 +326,6 @@ class Map_Plotter:
         # if(scatterplot):
         #     ax.scatter(img_coords[:, 0], img_coords[:, 1], color='green', s=25, alpha=0.3)  # Adjust color, size, and alpha as needed
 
-        print('generated heatmap')
 
 
         #set title
@@ -364,7 +361,6 @@ class Map_Plotter:
             cbar.set_label('Density')
         plt.title(title)
 
-        print('title set, preparing to encode and return')
 
         # Show the plot
         # plt.show()
@@ -373,7 +369,6 @@ class Map_Plotter:
         plt.close(fig)
         buf.seek(0)
 
-        print('about to return')
         return base64.b64encode(buf.read()).decode('utf-8')
        
     def create_positioning_guide(self, kill_hist, death_hist, attack: bool, defense: bool, map_only: bool = False, log_scale: bool = False, filter_sigma: int = 3 ):

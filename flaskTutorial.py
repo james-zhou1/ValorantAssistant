@@ -43,8 +43,15 @@ def home():
 def guide():
     form_data = request.form.to_dict()  # Convert form data to a dictionary
     map_name = form_data['mapName']
-    map_plotter = Map_Plotter('leaderboard_data_GEA', map_name)
-   
+    try:
+        map_plotter = Map_Plotter('leaderboard_data_GEA', map_name)
+    except Exception as e:
+        if "No recorded matches" in str(e):
+            return render_template('error.html', map_name = map_name)
+        else:
+            raise
+    
+
     session['user_id'] = str(uuid.uuid4()) #'initialize' the session
 
     store_plotter(map_plotter)

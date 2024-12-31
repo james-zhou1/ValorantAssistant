@@ -24,6 +24,7 @@ def limit_check(response):
 
 
 
+#raw data has: competitiveupdates mmr matchdetails matchhistory
 
 
 #============================================================================================================
@@ -92,6 +93,45 @@ def get_raw(puuid: str,api_key: str,queue: str, startIndex: int, endIndex: int):
         response_message = f"{error} Code:{code}....{details}"
         print(response_message, "\nEXITING PROGRAM")
         quit()
+
+#Accesses API
+#returns Competitive Updates
+#format is here: https://valapidocs.techchrism.me/endpoint/competitive-updates 
+# |startIndex - endIndex| MUST BE <= 20, if not, it will be error
+def get_comp_updates(puuid: str,api_key: str,queue: str, startIndex: int, endIndex: int):
+    url = f"https://api.henrikdev.xyz/valorant/v1/raw"
+    headers = {
+        'Authorization': f'{api_key}',
+    }
+    body = {
+        "type": "competitiveupdates",
+        "value": puuid,
+        "region": "na",
+        "queries": f"?startIndex={startIndex}&endIndex={endIndex}&queue={queue}"
+    }
+    
+ 
+
+    print("Making request...")
+    response = requests.post(url, headers=headers, json=body)
+    
+
+    if response.status_code == 200:
+        limit_check(response)
+        return response.json()
+    else:
+        print(f"Failed to fetch raw_data(comp updates): {response.status_code}")
+        error = response.json()['errors'][0]['message']
+        details= response.json()['errors'][0]['details']
+        code = response.json()['status']
+        if details == "null":
+            details = ""     
+        else:
+            details = f"Details: {details}"
+        response_message = f"{error} Code:{code}....{details}"
+        print(response_message, "\nEXITING PROGRAM")
+        quit()
+
 
 #Accesses API
 #returns match details of matchID

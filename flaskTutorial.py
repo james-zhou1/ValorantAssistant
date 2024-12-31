@@ -11,7 +11,12 @@ app = Flask(__name__, template_folder=os.getcwd())
 app.secret_key = 'GEA-2D4E-G1V2-4I93Q'  # Necessary for session management
 
 # Configure Flask-Caching
-cache = Cache(app, config={'CACHE_TYPE': 'redis', 'CACHE_REDIS_URL': 'redis://localhost:6379/0', 'CACHE_DEFAULT_TIMEOUT': 3600})
+cache = Cache(app, config={
+    'CACHE_TYPE': 'redis',
+    'CACHE_REDIS_URL': 'redis://default:RWzWWTRnBAvgHLv2R6jBHQltVuskWcA4@redis-16449.c8.us-east-1-4.ec2.redns.redis-cloud.com:16449/0',
+    'CACHE_DEFAULT_TIMEOUT': 3600
+})
+
 
 def store_plotter (plotter: Map_Plotter):
 
@@ -177,15 +182,17 @@ def buy_values(buy_name: str):
         if(buy_name == 'pistol'):
             return 0,1000
         elif(buy_name == 'rifle'):
-            return 3900, 5000
+            return 3900, 5600
         elif(buy_name == 'all'):
             return 0, 7950
         elif(buy_name == 'fullbuy'):
-            return 3600, 7950
+            return 4000, 7950
         elif(buy_name == 'midbuy'):
             return 1000, 3900
         elif(buy_name == 'eco'):
             return 0, 3000
+        elif(buy_name == 'operator'):
+            return 5750,7950
 
 def process_data(data):
     

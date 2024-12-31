@@ -1,14 +1,33 @@
 import os
 import json
 import tempfile
+from collections import deque
 from .GEA_constants import *
 from .GEA_api_caller import *
 from .GEA_classified import *
 
 #============================================================================================================
-#READ THIS                                   
+#READ THIS            READ THIS             READ THIS               READ THIS      
+# 1. you can ignore any function labeled as 'auxillary' (unless you want to write your own functions)
+# 2. read all comments whenever you see the '=======' dividing line
+# 3. read all comments above function headers 
+
+#this whole library revolves around creating the GEA STRUCTURE.
+# The GEA STRUCTURE is organized in a way that makes it 
+# very useful to perform data analysis on Val match results.
+
+# I will link an image to the structure here:
+# [GEA STRUCTURE IMAGE LINK]
+
+
+# if anything is unclear dm @ecneon on discord
+#============================================================================
+
+
 #FUNCTION DEFITIONS (you can collapse all of these)
 #these access and save data
+
+
 
 
 #Does not access API
@@ -346,8 +365,14 @@ def analyze_match(curr_match: dict, puuid: str, output_dict: dict):
 
 #Accesses API(indirectly)
 #returns specified(puuid) player's data 
+#if puuid is empty string, we will get everyone's data
+
+#dont worry about the to_return_dict parameter. 
+#it used to be for when I was storing GEA structures locally
+#now i use a database and i can append onto the database directly
+
 #data structure image link: [to be added]
-def get_all_location_data(puuid: str, all_match_ids: [], examined_matches: set = None, to_return_dict:dict = None):
+def get_all_location_data(puuid: str, all_match_ids: list, examined_matches: set = None, to_return_dict:dict = None):
     
     if to_return_dict is None:
         to_return_dict = {}
@@ -420,7 +445,64 @@ def get_individual_data_for_players(puuids: list):
 
     return toReturn
 
+#Accesses API(indirectly)
+#returns a LIST of MatchIDs that are played around the given tier_range
+#requires one player that has games within that range because thats how it works
+def get_ranked_matches(starterPuuid: str, tier_range: tuple, examined_matches: set, limit: int) -> list[str]:
+    
+    #recursive helper. Performs DFS (sort of)
+    def propogate(all_match_ids: set, puuidStack: list, examined: set, limit: int):
+        if len(puuidStack) == 0:
+            print('Weve hit a dead end in propogate(), this should be very rare. Pick a different starting puuid')
+            print(f'Heres how many matches we still needed to get: {limit}')
+            return all_match_ids
 
+        dbug_print(f'\nExamining new player... limit = {limit}')
+
+        puuid = puuidStack.pop()
+
+
+        #get the initial list of match ids, using comp_updates
+        comp_updates = get_comp_updates(puuid,API_KEY,"competitive",0, 10)
+
+        #save one matchID thats within range to grab more players from if we need to
+        saved = None
+
+        #loop through all the matches we got from the api call
+        for match in comp_updates['Matches']:
+
+            #if the current rank played of match is within range and has not been examined, add to the set
+            if match['TierBeforeUpdate'] in range(tier_range[0],tier_range[1]+1) and match['MatchID'] not in examined:
+                dbug_print('\tAdding new matchID..')
+
+                #add to examined and add to our return set
+                all_match_ids.add(match['MatchID'])
+                examined.add(match['MatchID'])
+
+                limit -= 1
+                if limit == 0:
+                    dbug_print('Limit reached! returning')
+                    return all_match_ids
+                
+                if saved is None:
+                    saved = match['MatchID']
+        
+        #saved COULD BE NONE,
+
+        #if we have no more players to choose from, add some
+        if len(puuidStack) <= 6:
+            dbug_print('Playerlist buffer <= 6, adding more')
+            if saved is not None:
+                match_details = get_match_details(saved ,API_KEY)
+                for player in match_details['players']: 
+                    if player['subject'] != puuid and player['subject'] is not None: #Need to also handle anonymous players
+                        puuidStack.append(player['subject'])
+        
+        return propogate(all_match_ids, puuidStack, examined, limit)
+
+
+
+    return list(propogate(set(),[starterPuuid], examined_matches, limit))
 
 #UNUSED
 #adds multiple players ids to one big GEA structure
@@ -439,7 +521,7 @@ def get_all_players_location_data(players_match_data: dict, api_key: str):
     return to_return_dict
 #UNUSED
 #helper for above
-def process_player_match_history(puuid: str, match_ids: [], to_return_dict: dict, api_key: str):
+def process_player_match_history(puuid: str, match_ids: list, to_return_dict: dict, api_key: str):
     for index, match_id in enumerate(match_ids):
         curr_match = get_match_details(match_id, API_KEY)
         
@@ -448,7 +530,7 @@ def process_player_match_history(puuid: str, match_ids: [], to_return_dict: dict
         to_return_dict = analyze_match(curr_match, puuid, to_return_dict)
     return to_return_dict
 
-
+#UNUSED
 #combines multiple GEA structures into one
 def combine(data_structures):
 
@@ -522,12 +604,27 @@ def combine(data_structures):
 #=================================================================================================================
 
 
-
-
 #THESE ARE THE FUNCTIONS YOU CALL DIRECTLY IN THE CODE
 #============================================================================================================
+# A couple terms you should know: 
+# *PLAYER SPECIFIC: 
+#   means the data returned to us corresponds to one specific player
+#   example: all of GEA joli's deaths, all of GEA joli's kills
+
+#*NOT PLAYER SPECIFIC:
+#   means the data returned to us is from all players in all matches
+#   example: all players deaths in GEA joli's games, all players' kills in GEA joli's games
+
+
+
+
 #creates GEA structure for one player
-#PLAYER SPECIFIC
+#*PLAYER SPECIFIC
+
+# !! this needs examined_matches functionality
+# it is prone to duplicate datapoints
+#Only  use this if you dont plan on appending the results from multiple 
+#analyze_individual calls from the same person
 def analyze_individual(name: str, tag:str):
 
     puuid = get_puuid(name, tag, API_KEY)['data']['puuid']
@@ -543,7 +640,12 @@ def analyze_individual(name: str, tag:str):
 # [puuid] -> GEA structure,
 # [puuid] -> GEA structure
 #}
-#PLAYER SPECIFIC
+#*PLAYER SPECIFIC
+
+# !! this needs examined_matches functionality
+# it is prone to duplicate datapoints
+#Only  use this if you dont plan on appending the results from multiple 
+#analyze_individual calls from the same person
 def analyze_group(allPlayers: list):
     allPuuids = []
     for player in allPlayers:
@@ -553,7 +655,9 @@ def analyze_group(allPlayers: list):
 
 
 #creates one GEA structure for all mathes played by allPlayers
-#NOT PLAYER SPECIFIC
+#allPlayers is an array of dictionaries
+# [ {'name': str, 'tag':str}, ... ]
+#*NOT PLAYER SPECIFIC
 def compile_match_data(allPlayers: list, examined_matches: set):
 
     #create a big list of match IDS
@@ -567,8 +671,10 @@ def compile_match_data(allPlayers: list, examined_matches: set):
     return get_all_location_data("", allMatchIDs, examined_matches)
     
 
+
+
 #does the same as compile_match_data, but does it for the top n leaderboard players of specified season and region
-#NOT PLAYER SPECIFIC
+#*NOT PLAYER SPECIFIC
 def compile_leaderboard_data(examined_matches:set, num_players: int, region: str = 'na', season: str = recent_season ):
 
     leaderboard = get_leaderboard_info(API_KEY, region, season)
@@ -588,7 +694,23 @@ def compile_leaderboard_data(examined_matches:set, num_players: int, region: str
     #keep track of examined matches to avoid duplicates
     return get_all_location_data("", allMatchIDs, examined_matches)
 
-#designated function for dealing with the fixed GEA data                         #NO LONGER USING   ---------------------------------
+
+
+
+#takes in one player's puuid, and 
+#returns a GEA structure containing data from
+# "limit" number of UNIQUE matches 
+
+def compile_rank_data(starterPuuid: str, tier_range: tuple, examined_matches: set, limit: int):
+
+    allMatchIDs = get_ranked_matches(starterPuuid, tier_range, examined_matches, limit)
+
+    #we put empty set for examined_matches because get_ranked_matches already garuntees we avoid duplicates.
+    #allMatchIDs is already new 
+    return get_all_location_data("", allMatchIDs, set())
+
+#NO LONGER USING   ================================================================
+#designated function for dealing with the fixed GEA data                        
 #inputs the file names
 def update_fixed_data(allPlayers: list, fixed_data: str, examined_matches: str): 
     #read

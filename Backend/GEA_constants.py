@@ -55,7 +55,8 @@ allArmor = {
     None: "No Shield",
     "": "No Shield",
     "822bcab2-40a2-324e-c137-e09195ad7692": "Heavy Shields",
-    "4dec83d5-4902-9ab3-bed6-a7a390761157": "Light Shields"
+    "4dec83d5-4902-9ab3-bed6-a7a390761157": "Light Shields",
+    "b1b9086d-41bd-a516-5d29-e3b34a6f1644": "Regen Shields",
 }
 
 allAgents = {
@@ -82,7 +83,8 @@ allAgents = {
     "569fdd95-4d10-43ab-ca70-79becc718b46": "Sage",
     "a3bfb853-43b2-7238-a4f1-ad90e9e46bcc": "Reyna",
     "8e253930-4c05-31dd-1b6c-968525494517": "Omen",
-    "add6443a-41bd-e414-f6ad-e58d267f4e95": "Jett"
+    "add6443a-41bd-e414-f6ad-e58d267f4e95": "Jett",
+    "efba5359-4016-a1e5-7626-b1ae76895940": "Vyse",
 }
 
 allSkins = {
@@ -1043,34 +1045,34 @@ allModes = {
 }
 
 allRanks = [
-    "UNRANKED", 
-    "Unused1", 
-    "Unused2", 
-    "IRON 1", 
-    "IRON 2",
-    "IRON 3",
-    "BRONZE 1",
-    "BRONZE 2",
-    "BRONZE 3",
-    "SILVER 1",
-    "SILVER 2",
-    "SILVER 3",
-    "GOLD 1",
-    "GOLD 2",
-    "GOLD 3",
-    "PLATINUM 1",
-    "PLATINUM 2",
-    "PLATINUM 3",
-    "DIAMOND 1",
-    "DIAMOND 2",
-    "DIAMOND 3",
-    "ASCENDANT 1",
-    "ASCENDANT 2",
-    "ASCENDANT 3",
-    "IMMORTAL 1",
-    "IMMORTAL 2",
-    "IMMORTAL 3",
-    "RADIANT"
+    "UNRANKED", #0
+    "Unused1",  #1
+    "Unused2",  #2
+    "IRON 1",  #3
+    "IRON 2",  #4
+    "IRON 3",  #5
+    "BRONZE 1",  #6
+    "BRONZE 2",  #7
+    "BRONZE 3",  #8
+    "SILVER 1",  #9
+    "SILVER 2",  #10
+    "SILVER 3",  #11
+    "GOLD 1",  #12
+    "GOLD 2",  #13
+    "GOLD 3",  #14
+    "PLATINUM 1",  #15
+    "PLATINUM 2",  #16
+    "PLATINUM 3",  #17
+    "DIAMOND 1",  #18
+    "DIAMOND 2",  #19
+    "DIAMOND 3",  #20
+    "ASCENDANT 1",  #21
+    "ASCENDANT 2",  #22
+    "ASCENDANT 3",  #23
+    "IMMORTAL 1",  #24
+    "IMMORTAL 2",  #25
+    "IMMORTAL 3",  #26
+    "RADIANT"  #27
 ]
 
 

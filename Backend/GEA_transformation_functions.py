@@ -682,7 +682,7 @@ def compile_leaderboard_data(examined_matches:set, num_players: int, region: str
     for player in leaderboard['players']:
         if not player['IsBanned'] and not player['IsAnonymized']:
             
-            print(f'getting matches for {player['gameName']}')
+            print(f"getting matches for {player['gameName']}")
 
             allMatchIDs.extend(get_player_match_IDs(player['puuid']))
             num_players -= 1
